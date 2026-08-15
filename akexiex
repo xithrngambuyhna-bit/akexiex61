@@ -1,0 +1,252 @@
+-- Services
+local Players = game:GetService("Players")
+local UserInputService = game:GetService("UserInputService")
+local TweenService = game:GetService("TweenService")
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+--------------------------------------------------------------------------------
+-- 1. สร้าง ScreenGui & Main Frame
+--------------------------------------------------------------------------------
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "DriveSimulatorMenu"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Name = "MainFrame"
+mainFrame.Size = UDim2.new(0, 320, 0, 260)
+mainFrame.Position = UDim2.new(0.5, -160, 0.4, -130)
+mainFrame.BackgroundColor3 = Color3.fromRGB(35, 35, 45)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Parent = screenGui
+
+local corner = Instance.new("UICorner")
+corner.CornerRadius = UDim.new(0, 10)
+corner.Parent = mainFrame
+
+--------------------------------------------------------------------------------
+-- 2. สร้าง Title Bar (แถบด้านบนสำหรับลาก & ย่อ)
+--------------------------------------------------------------------------------
+local titleBar = Instance.new("Frame")
+titleBar.Name = "TitleBar"
+titleBar.Size = UDim2.new(1, 0, 0, 40)
+titleBar.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
+titleBar.BorderSizePixel = 0
+titleBar.Parent = mainFrame
+
+local titleCorner = Instance.new("UICorner")
+titleCorner.CornerRadius = UDim.new(0, 10)
+titleCorner.Parent = titleBar
+
+local titleText = Instance.new("TextLabel")
+titleText.Size = UDim2.new(1, -50, 1, 0)
+titleText.Position = UDim2.new(0, 15, 0, 0)
+titleText.BackgroundTransparency = 1
+titleText.Text = "🚗 เมนูปรับแต่งรถ"
+titleText.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleText.TextSize = 16
+titleText.Font = Enum.Font.SourceSansBold
+titleText.TextXAlignment = Enum.TextXAlignment.Left
+titleText.Parent = titleBar
+
+-- ปุ่มย่อ / ขยายเมนู
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 30, 0, 30)
+toggleBtn.Position = UDim2.new(1, -35, 0, 5)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(50, 50, 65)
+toggleBtn.Text = "-"
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.TextSize = 18
+toggleBtn.Font = Enum.Font.SourceSansBold
+toggleBtn.Parent = titleBar
+
+local btnCorner = Instance.new("UICorner")
+btnCorner.CornerRadius = UDim.new(0, 6)
+btnCorner.Parent = toggleBtn
+
+--------------------------------------------------------------------------------
+-- 3. ส่วนเนื้อหาเมนู (Content Area)
+--------------------------------------------------------------------------------
+local container = Instance.new("Frame")
+container.Name = "Container"
+container.Size = UDim2.new(1, -20, 1, -50)
+container.Position = UDim2.new(0, 10, 0, 45)
+container.BackgroundTransparency = 1
+container.Parent = mainFrame
+
+-- Label ความเร็ว
+local speedLabel = Instance.new("TextLabel")
+speedLabel.Size = UDim2.new(1, 0, 0, 25)
+speedLabel.Position = UDim2.new(0, 0, 0, 5)
+speedLabel.BackgroundTransparency = 1
+speedLabel.Text = "ปรับความเร็วรถ (1 - 300):"
+speedLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+speedLabel.TextSize = 14
+speedLabel.Font = Enum.Font.SourceSans
+speedLabel.TextXAlignment = Enum.TextXAlignment.Left
+speedLabel.Parent = container
+
+-- ช่องพิมพ์ความเร็ว
+local speedInput = Instance.new("TextBox")
+speedInput.Size = UDim2.new(1, 0, 0, 35)
+speedInput.Position = UDim2.new(0, 0, 0, 30)
+speedInput.BackgroundColor3 = Color3.fromRGB(45, 45, 60)
+speedInput.Text = "100"
+speedInput.TextColor3 = Color3.fromRGB(0, 255, 150)
+speedInput.TextSize = 16
+speedInput.Font = Enum.Font.SourceSansBold
+speedInput.Parent = container
+
+local inputCorner = Instance.new("UICorner")
+inputCorner.CornerRadius = UDim.new(0, 6)
+inputCorner.Parent = speedInput
+
+-- ปุ่มยืนยันปรับความเร็ว
+local applySpeedBtn = Instance.new("TextButton")
+applySpeedBtn.Size = UDim2.new(1, 0, 0, 35)
+applySpeedBtn.Position = UDim2.new(0, 0, 0, 75)
+applySpeedBtn.BackgroundColor3 = Color3.fromRGB(0, 150, 255)
+applySpeedBtn.Text = "⚡ ยืนยันความเร็ว"
+applySpeedBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+applySpeedBtn.TextSize = 15
+applySpeedBtn.Font = Enum.Font.SourceSansBold
+applySpeedBtn.Parent = container
+
+local applyCorner = Instance.new("UICorner")
+applyCorner.CornerRadius = UDim.new(0, 6)
+applyCorner.Parent = applySpeedBtn
+
+-- ปุ่มถอดชุดสี / ชิ้นส่วนรถ
+local removePartsBtn = Instance.new("TextButton")
+removePartsBtn.Size = UDim2.new(1, 0, 0, 40)
+removePartsBtn.Position = UDim2.new(0, 0, 0, 125)
+removePartsBtn.BackgroundColor3 = Color3.fromRGB(220, 50, 50)
+removePartsBtn.Text = "🛠️ ถอดชุดสี / ชิ้นส่วนรถทั้งหมด"
+removePartsBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+removePartsBtn.TextSize = 15
+removePartsBtn.Font = Enum.Font.SourceSansBold
+removePartsBtn.Parent = container
+
+local removeCorner = Instance.new("UICorner")
+removeCorner.CornerRadius = UDim.new(0, 6)
+removeCorner.Parent = removePartsBtn
+
+--------------------------------------------------------------------------------
+-- 4. ระบบเคลื่อนย้ายเมนู (Draggable Menu)
+--------------------------------------------------------------------------------
+local dragging, dragInput, dragStart, startPos
+
+titleBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = true
+		dragStart = input.Position
+		startPos = mainFrame.Position
+		
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then
+				dragging = false
+			end
+		end)
+	end
+end)
+
+titleBar.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+		dragInput = input
+	end
+end)
+
+UserInputService.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+end)
+
+--------------------------------------------------------------------------------
+-- 5. ระบบย่อ / ขยายเมนู (Minimize Menu)
+--------------------------------------------------------------------------------
+local isMinimized = false
+
+toggleBtn.MouseButton1Click:Connect(function()
+	isMinimized = not isMinimized
+	if isMinimized then
+		container.Visible = false
+		mainFrame:TweenSize(UDim2.new(0, 320, 0, 40), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true)
+		toggleBtn.Text = "+"
+	else
+		mainFrame:TweenSize(UDim2.new(0, 320, 0, 260), Enum.EasingDirection.Out, Enum.EasingStyle.Quart, 0.2, true, function()
+			container.Visible = true
+		end)
+		toggleBtn.Text = "-"
+	end
+end)
+
+--------------------------------------------------------------------------------
+-- 6. ฟังก์ชันค้นหารถที่ผู้เล่นกำลังขับอยู่
+--------------------------------------------------------------------------------
+local function getPlayerVehicle()
+	local character = player.Character
+	if character then
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if humanoid and humanoid.SeatPart then
+			-- หา Model หลักของรถจากตำแหน่งที่นั่ง
+			return humanoid.SeatPart:FindFirstAncestorOfClass("Model")
+		end
+	end
+	return nil
+end
+
+--------------------------------------------------------------------------------
+-- 7. ระบบปรับความเร็ว (1 - 300)
+--------------------------------------------------------------------------------
+applySpeedBtn.MouseButton1Click:Connect(function()
+	local speedValue = tonumber(speedInput.Text)
+	if not speedValue then return end
+	
+	-- จำกัดให้อยู่ในช่วง 1 ถึง 300
+	speedValue = math.clamp(speedValue, 1, 300)
+	speedInput.Text = tostring(speedValue)
+
+	local vehicle = getPlayerVehicle()
+	if vehicle then
+		-- รองรับระบบรถขับเคลื่อนมาตรฐาน (VehicleSeat)
+		local vehicleSeat = vehicle:FindFirstChildOfClass("VehicleSeat", true)
+		if vehicleSeat then
+			vehicleSeat.MaxSpeed = speedValue
+		end
+
+		-- รองรับระบบรถยอดนิยม เช่น A-Chassis / Chassis ต่างๆ
+		for _, child in pairs(vehicle:GetDescendants()) do
+			if child:IsA("NumberValue") or child:IsA("IntValue") then
+				if child.Name:lower():find("speed") or child.Name:lower():find("maxspeed") or child.Name == "Horsepower" then
+					child.Value = speedValue
+				end
+			end
+		end
+	end
+end)
+
+--------------------------------------------------------------------------------
+-- 8. ระบบถอดชุดสี / ชิ้นส่วนรถ
+--------------------------------------------------------------------------------
+removePartsBtn.MouseButton1Click:Connect(function()
+	local vehicle = getPlayerVehicle()
+	if vehicle then
+		for _, part in pairs(vehicle:GetDescendants()) do
+			if part:IsA("BasePart") then
+				-- ปรับให้ชิ้นส่วนกลายเป็นแบบโปร่งใส (เหมือนถอดออก)
+				part.Transparency = 1
+			elseif part:IsA("Decal") or part:IsA("Texture") then
+				-- ลบสติกเกอร์/ลวดลายสี
+				part:Destroy()
+			elseif part:IsA("SpecialMesh") then
+				-- ลบ Mesh ตกแต่งภายนอก
+				part.TextureId = ""
+			end
+		end
+	end
+end)
